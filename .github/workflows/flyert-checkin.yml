@@ -12,12 +12,32 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: "22"
+          node-version: "24"
+
+      - name: Preflight configuration
+        env:
+          FLYERT_COOKIE: ${{ secrets.FLYERT_COOKIE }}
+          FLYERT_CHECKIN_URL: ${{ secrets.FLYERT_CHECKIN_URL }}
+          FLYERT_CHECKIN_METHOD: ${{ secrets.FLYERT_CHECKIN_METHOD }}
+          FLYERT_CHECKIN_BODY: ${{ secrets.FLYERT_CHECKIN_BODY }}
+          FLYERT_SUCCESS_KEYWORDS: ${{ secrets.FLYERT_SUCCESS_KEYWORDS }}
+          FLYERT_ALREADY_KEYWORDS: ${{ secrets.FLYERT_ALREADY_KEYWORDS }}
+        run: |
+          if [ -z "$FLYERT_COOKIE" ]; then
+            echo "::error title=Missing secret::Set repository secret FLYERT_COOKIE before running this workflow."
+            exit 1
+          fi
+          echo "FLYERT_COOKIE=SET"
+          if [ -n "$FLYERT_CHECKIN_URL" ]; then echo "FLYERT_CHECKIN_URL=SET"; else echo "FLYERT_CHECKIN_URL=UNSET"; fi
+          if [ -n "$FLYERT_CHECKIN_METHOD" ]; then echo "FLYERT_CHECKIN_METHOD=$FLYERT_CHECKIN_METHOD"; else echo "FLYERT_CHECKIN_METHOD=default"; fi
+          if [ -n "$FLYERT_CHECKIN_BODY" ]; then echo "FLYERT_CHECKIN_BODY=SET"; else echo "FLYERT_CHECKIN_BODY=UNSET"; fi
+          if [ -n "$FLYERT_SUCCESS_KEYWORDS" ]; then echo "FLYERT_SUCCESS_KEYWORDS=SET"; else echo "FLYERT_SUCCESS_KEYWORDS=UNSET"; fi
+          if [ -n "$FLYERT_ALREADY_KEYWORDS" ]; then echo "FLYERT_ALREADY_KEYWORDS=SET"; else echo "FLYERT_ALREADY_KEYWORDS=UNSET"; fi
 
       - name: Run Flyert check-in
         env:
