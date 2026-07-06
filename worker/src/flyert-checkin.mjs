@@ -3,7 +3,6 @@ const DEFAULT_BASE_URL = "https://www.flyert.com.cn";
 const DEFAULT_CHECKIN_PATHS = [
   "/plugin.php?id=k_misign:sign",
   "/sign.php?mobile=2",
-  "/plugin.php?id=dsu_paulsign:sign",
   "/home.php?mod=task"
 ];
 
@@ -77,7 +76,7 @@ export async function runFlyertCheckin(options = {}) {
     if (status === "checked_in") {
       bestStatus = "checked_in";
       bestUrl = url;
-    } else if (status === "already_checked" && bestStatus !== "checked_in") {
+    } else if (status === "already_checked" && bestStatus === "unknown") {
       bestStatus = "already_checked";
       bestUrl = url;
     }

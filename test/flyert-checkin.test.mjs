@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { runFlyertCheckin } from "../worker/src/flyert-checkin.mjs";
+import { checkinCandidates, runFlyertCheckin } from "../worker/src/flyert-checkin.mjs";
 
 function response(body, init = {}) {
   return new Response(body, {
@@ -73,6 +73,15 @@ test("uses the mobile Flyert forum page for the default login check", async () =
   assert.equal(urls[0], "https://www.flyert.com.cn/forum.php?gid=226&mobile=yes");
 });
 
+test("default check-in candidates skip the removed 404 dsu endpoint", () => {
+  const urls = checkinCandidates({}, "https://www.flyert.com.cn");
+
+  assert.deepEqual(urls, [
+    "https://www.flyert.com.cn/plugin.php?id=k_misign:sign",
+    "https://www.flyert.com.cn/sign.php?mobile=2",
+    "https://www.flyert.com.cn/home.php?mod=task"
+  ]);
+});
 test("also runs the mobile sign backup during the default check-in run", async () => {
   const urls = [];
 
@@ -93,6 +102,24 @@ test("also runs the mobile sign backup during the default check-in run", async (
   assert.equal(result.ok, true);
   assert.equal(result.status, "checked_in");
   assert.ok(urls.includes("https://www.flyert.com.cn/sign.php?mobile=2"));
+});
+test("keeps the first already-checked sign page as the summary source", async () => {
+  const logs = [];
+
+  const result = await runFlyertCheckin({
+    env: { FLYERT_COOKIE: "discuz_uid=123; auth=abc" },
+    logger: { log: (message) => logs.push(message) },
+    fetchImpl: async (url) => {
+      if (url.includes("forum.php?gid=226")) {
+        return response("<html>\u6d88\u606f \u9000\u51fa</html>");
+      }
+      return response("<html>\u4eca\u65e5\u5df2\u7b7e\u5230</html>");
+    }
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.status, "already_checked");
+  assert.equal(logs[0], "Flyert already checked in via https://www.flyert.com.cn/plugin.php?id=k_misign:sign");
 });
 test("decodes a GBK Flyert homepage before checking login state", async () => {
   const gbkLoggedIn = Uint8Array.from([0xcf, 0xfb, 0xcf, 0xa2, 0x20, 0xcd, 0xcb, 0xb3, 0xf6]);
