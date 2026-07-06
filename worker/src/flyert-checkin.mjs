@@ -48,7 +48,7 @@ export async function runFlyertCheckin(options = {}) {
     if (homepageBlock) return homepageBlock;
 
     if (!looksLoggedIn(homepage.text)) {
-      return result(false, "login_required", "Cookie did not produce a logged-in Flyert homepage.");
+      return result(false, "login_required", "Cookie did not produce a logged-in Flyert homepage.", { homepage: pageDiagnostics(homepage) });
     }
   }
 
@@ -228,6 +228,15 @@ function normalizeMethod(value) {
   return /^[A-Z]+$/.test(method) ? method : "GET";
 }
 
+function pageDiagnostics(page) {
+  return {
+    url: page.url,
+    httpStatus: page.status,
+    contentType: page.headers.get("content-type") || "",
+    sample: compactText(page.text).slice(0, 320)
+  };
+}
+
 function result(ok, status, message, extra = {}) {
   return {
     ok,
@@ -243,7 +252,12 @@ function compactText(text) {
 }
 
 function normalizeSecret(value) {
-  return String(value || "").trim();
+  return String(value || "")
+    .trim()
+    .replace(/^['"]?\s*cookie\s*:\s*/i, "")
+    .replace(/^-H\s+['"]?\s*cookie\s*:\s*/i, "")
+    .replace(/['"]$/g, "")
+    .trim();
 }
 
 function trimTrailingSlash(value) {
@@ -257,3 +271,4 @@ function absoluteUrl(value, baseUrl) {
 function truthy(value) {
   return /^(1|true|yes|on)$/i.test(String(value || "").trim());
 }
+

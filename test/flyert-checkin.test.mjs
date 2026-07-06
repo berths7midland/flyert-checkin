@@ -29,7 +29,7 @@ test("fails before network requests when FLYERT_COOKIE is missing", async () => 
   assert.equal(calls.length, 0);
 });
 
-test("reports login_required when homepage does not look logged in", async () => {
+test("reports login_required with safe homepage diagnostics", async () => {
   const result = await runFlyertCheckin({
     env: { FLYERT_COOKIE: "discuz_uid=123; auth=abc" },
     fetchImpl: async () => response("<html><a>\u767b\u5f55</a><a>\u6ce8\u518c</a></html>")
@@ -37,6 +37,25 @@ test("reports login_required when homepage does not look logged in", async () =>
 
   assert.equal(result.ok, false);
   assert.equal(result.status, "login_required");
+  assert.equal(result.homepage.httpStatus, 200);
+  assert.match(result.homepage.sample, /html/);
+  assert.doesNotMatch(JSON.stringify(result), /discuz_uid|auth=abc/);
+});
+
+test("normalizes a copied Cookie header before sending requests", async () => {
+  const requests = [];
+
+  const result = await runFlyertCheckin({
+    env: { FLYERT_COOKIE: "Cookie: discuz_uid=123; auth=abc" },
+    fetchImpl: async (url, init = {}) => {
+      requests.push({ url, init });
+      return response("<html>\u6d88\u606f \u9000\u51fa</html>");
+    }
+  });
+
+  assert.equal(result.ok, false);
+  assert.equal(result.status, "unknown_response");
+  assert.equal(requests[0].init.headers.cookie, "discuz_uid=123; auth=abc");
 });
 
 test("returns already_checked when the sign page says today is complete", async () => {
