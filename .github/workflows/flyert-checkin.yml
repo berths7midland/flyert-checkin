@@ -1,0 +1,36 @@
+﻿name: Flyert Check-in
+
+on:
+  schedule:
+    - cron: "20 0 * * *"
+    - cron: "40 12 * * *"
+  workflow_dispatch:
+
+jobs:
+  checkin:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Run Flyert check-in
+        env:
+          FLYERT_COOKIE: ${{ secrets.FLYERT_COOKIE }}
+          FLYERT_CHECKIN_URL: ${{ secrets.FLYERT_CHECKIN_URL }}
+          FLYERT_CHECKIN_METHOD: ${{ secrets.FLYERT_CHECKIN_METHOD }}
+          FLYERT_CHECKIN_BODY: ${{ secrets.FLYERT_CHECKIN_BODY }}
+          FLYERT_CHECKIN_CONTENT_TYPE: ${{ secrets.FLYERT_CHECKIN_CONTENT_TYPE }}
+          FLYERT_SUCCESS_KEYWORDS: ${{ secrets.FLYERT_SUCCESS_KEYWORDS }}
+          FLYERT_ALREADY_KEYWORDS: ${{ secrets.FLYERT_ALREADY_KEYWORDS }}
+          FLYERT_EXTRA_HEADERS: ${{ secrets.FLYERT_EXTRA_HEADERS }}
+          FLYERT_REFERER: ${{ secrets.FLYERT_REFERER }}
+          FLYERT_USER_AGENT: ${{ secrets.FLYERT_USER_AGENT }}
+          FLYERT_SKIP_HOME_CHECK: ${{ secrets.FLYERT_SKIP_HOME_CHECK }}
+          FLYERT_BASE_URL: ${{ vars.FLYERT_BASE_URL }}
+        run: node scripts/github-checkin.mjs
