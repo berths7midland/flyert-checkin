@@ -73,9 +73,12 @@ FLYERT_EXTRA_HEADERS
 FLYERT_REFERER
 FLYERT_USER_AGENT
 FLYERT_BASE_URL
+FLYERT_HOME_URL
 FLYERT_SKIP_HOME_CHECK
 RUN_TOKEN
 ```
+
+If `FLYERT_HOME_URL` is not set, the runner probes `https://www.flyert.com.cn/forum.php?gid=226&mobile=yes`.
 
 Recommended values after capture:
 

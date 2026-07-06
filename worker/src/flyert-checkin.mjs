@@ -1,4 +1,5 @@
-const DEFAULT_BASE_URL = "https://flyert.com.cn";
+const DEFAULT_HOME_URL = "https://www.flyert.com.cn/forum.php?gid=226&mobile=yes";
+const DEFAULT_BASE_URL = "https://www.flyert.com.cn";
 const DEFAULT_CHECKIN_PATHS = [
   "/plugin.php?id=k_misign:sign",
   "/plugin.php?id=dsu_paulsign:sign",
@@ -35,15 +36,16 @@ export async function runFlyertCheckin(options = {}) {
     return result(false, "missing_cookie", "Set FLYERT_COOKIE as a secret.");
   }
 
-  const baseUrl = trimTrailingSlash(env.FLYERT_BASE_URL || DEFAULT_BASE_URL);
+  const homeUrl = env.FLYERT_HOME_URL || DEFAULT_HOME_URL;
+  const baseUrl = trimTrailingSlash(env.FLYERT_BASE_URL || originOf(homeUrl) || DEFAULT_BASE_URL);
   const headers = buildHeaders({
     cookie,
     userAgent: env.FLYERT_USER_AGENT || DEFAULT_USER_AGENT,
-    referer: `${baseUrl}/`
+    referer: homeUrl
   });
 
   if (!truthy(env.FLYERT_SKIP_HOME_CHECK)) {
-    const homepage = await fetchText(fetchImpl, `${baseUrl}/`, { headers });
+    const homepage = await fetchText(fetchImpl, homeUrl, { headers });
     const homepageBlock = classifyBlocking(homepage);
     if (homepageBlock) return homepageBlock;
 
@@ -183,8 +185,23 @@ async function fetchText(fetchImpl, url, init) {
     url,
     status: response.status,
     headers: response.headers,
-    text: await response.text()
+    text: await decodeResponseText(response)
   };
+}
+
+async function decodeResponseText(response) {
+  const contentType = response.headers.get("content-type") || "";
+  const buffer = await response.arrayBuffer();
+
+  if (/charset\s*=\s*(gbk|gb2312|gb18030)/i.test(contentType)) {
+    try {
+      return new TextDecoder("gb18030").decode(buffer);
+    } catch {
+      return new TextDecoder("utf-8").decode(buffer);
+    }
+  }
+
+  return new TextDecoder("utf-8").decode(buffer);
 }
 
 function buildHeaders({ cookie, userAgent, referer }) {
@@ -266,6 +283,14 @@ function trimTrailingSlash(value) {
 
 function absoluteUrl(value, baseUrl) {
   return new URL(value, `${trimTrailingSlash(baseUrl)}/`).toString();
+}
+
+function originOf(value) {
+  try {
+    return new URL(value).origin;
+  } catch {
+    return "";
+  }
 }
 
 function truthy(value) {

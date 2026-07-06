@@ -58,6 +58,39 @@ test("normalizes a copied Cookie header before sending requests", async () => {
   assert.equal(requests[0].init.headers.cookie, "discuz_uid=123; auth=abc");
 });
 
+test("uses the mobile Flyert forum page for the default login check", async () => {
+  const urls = [];
+
+  const result = await runFlyertCheckin({
+    env: { FLYERT_COOKIE: "discuz_uid=123; auth=abc" },
+    fetchImpl: async (url) => {
+      urls.push(url);
+      return response("<html>\u6d88\u606f \u9000\u51fa</html>");
+    }
+  });
+
+  assert.equal(result.status, "unknown_response");
+  assert.equal(urls[0], "https://www.flyert.com.cn/forum.php?gid=226&mobile=yes");
+});
+
+test("decodes a GBK Flyert homepage before checking login state", async () => {
+  const gbkLoggedIn = Uint8Array.from([0xcf, 0xfb, 0xcf, 0xa2, 0x20, 0xcd, 0xcb, 0xb3, 0xf6]);
+  let requestCount = 0;
+
+  const result = await runFlyertCheckin({
+    env: { FLYERT_COOKIE: "discuz_uid=123; auth=abc" },
+    fetchImpl: async () => {
+      requestCount += 1;
+      if (requestCount === 1) {
+        return response(gbkLoggedIn, { contentType: "text/html; charset=gbk" });
+      }
+      return response("<html>\u7b7e\u5230\u6210\u529f</html>");
+    }
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.status, "checked_in");
+});
 test("returns already_checked when the sign page says today is complete", async () => {
   const urls = [];
 

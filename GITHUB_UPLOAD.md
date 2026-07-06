@@ -76,7 +76,10 @@ Optional GitHub variable:
 
 ```text
 FLYERT_BASE_URL
+FLYERT_HOME_URL
 ```
+
+If `FLYERT_HOME_URL` is not set, the workflow probes `https://www.flyert.com.cn/forum.php?gid=226&mobile=yes`.
 
 ## Workflow
 

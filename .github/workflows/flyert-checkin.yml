@@ -53,4 +53,5 @@ jobs:
           FLYERT_USER_AGENT: ${{ secrets.FLYERT_USER_AGENT }}
           FLYERT_SKIP_HOME_CHECK: ${{ secrets.FLYERT_SKIP_HOME_CHECK }}
           FLYERT_BASE_URL: ${{ vars.FLYERT_BASE_URL }}
+          FLYERT_HOME_URL: ${{ vars.FLYERT_HOME_URL }}
         run: node scripts/github-checkin.mjs

@@ -57,6 +57,7 @@ FLYERT_EXTRA_HEADERS
 FLYERT_REFERER
 FLYERT_USER_AGENT
 FLYERT_BASE_URL
+FLYERT_HOME_URL
 FLYERT_SKIP_HOME_CHECK
 RUN_TOKEN
 ```
@@ -72,7 +73,8 @@ Recommended mapping:
 - `FLYERT_EXTRA_HEADERS`: JSON object, for example `{ "x-requested-with": "XMLHttpRequest" }`.
 - `FLYERT_REFERER`: referer header if the captured request needs a specific page.
 - `FLYERT_USER_AGENT`: browser User-Agent if Flyert requires it.
-- `FLYERT_BASE_URL`: defaults to `https://flyert.com.cn`.
+- `FLYERT_BASE_URL`: defaults to `https://www.flyert.com.cn`.
+- `FLYERT_HOME_URL`: login probe page; defaults to `https://www.flyert.com.cn/forum.php?gid=226&mobile=yes`.
 - `FLYERT_SKIP_HOME_CHECK`: set to `true` if the captured check-in endpoint is enough and the homepage login check gets in the way.
 - `RUN_TOKEN`: protects manual Cloudflare Worker/Pages `/run` calls.
 
@@ -81,9 +83,9 @@ No Telegram Bot variables are used. Values such as `TG_BOT_TOKEN` are ignored.
 Default candidate URLs tried before `FLYERT_CHECKIN_URL` is known:
 
 ```text
-https://flyert.com.cn/plugin.php?id=k_misign:sign
-https://flyert.com.cn/plugin.php?id=dsu_paulsign:sign
-https://flyert.com.cn/home.php?mod=task
+https://www.flyert.com.cn/plugin.php?id=k_misign:sign
+https://www.flyert.com.cn/plugin.php?id=dsu_paulsign:sign
+https://www.flyert.com.cn/home.php?mod=task
 ```
 
 ## Cloudflare Worker
@@ -167,6 +169,7 @@ Optional repository variable:
 
 ```text
 FLYERT_BASE_URL
+FLYERT_HOME_URL
 ```
 
 The workflow can also be run manually from:
