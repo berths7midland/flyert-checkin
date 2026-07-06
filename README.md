@@ -1,4 +1,4 @@
-﻿# Flyert Automated Check-in
+# Flyert Automated Check-in
 
 This project follows the common GLaDOS check-in pattern: one small request runner, secrets injected by the platform, scheduled execution, and plain logs only. It intentionally does not send Telegram Bot notifications.
 
@@ -72,7 +72,7 @@ Recommended mapping:
 - `FLYERT_EXTRA_HEADERS`: JSON object, for example `{ "x-requested-with": "XMLHttpRequest" }`.
 - `FLYERT_REFERER`: referer header if the captured request needs a specific page.
 - `FLYERT_USER_AGENT`: browser User-Agent if Flyert requires it.
-- `FLYERT_BASE_URL`: defaults to `https://www.flyert.com.cn`.
+- `FLYERT_BASE_URL`: defaults to `https://flyert.com.cn`.
 - `FLYERT_SKIP_HOME_CHECK`: set to `true` if the captured check-in endpoint is enough and the homepage login check gets in the way.
 - `RUN_TOKEN`: protects manual Cloudflare Worker/Pages `/run` calls.
 
@@ -81,9 +81,9 @@ No Telegram Bot variables are used. Values such as `TG_BOT_TOKEN` are ignored.
 Default candidate URLs tried before `FLYERT_CHECKIN_URL` is known:
 
 ```text
-https://www.flyert.com.cn/plugin.php?id=k_misign:sign
-https://www.flyert.com.cn/plugin.php?id=dsu_paulsign:sign
-https://www.flyert.com.cn/home.php?mod=task
+https://flyert.com.cn/plugin.php?id=k_misign:sign
+https://flyert.com.cn/plugin.php?id=dsu_paulsign:sign
+https://flyert.com.cn/home.php?mod=task
 ```
 
 ## Cloudflare Worker

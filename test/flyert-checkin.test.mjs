@@ -1,4 +1,4 @@
-﻿import assert from "node:assert/strict";
+import assert from "node:assert/strict";
 import test from "node:test";
 
 import { runFlyertCheckin } from "../worker/src/flyert-checkin.mjs";
@@ -64,7 +64,7 @@ test("returns already_checked when the sign page says today is complete", async 
   const result = await runFlyertCheckin({
     env: {
       FLYERT_COOKIE: "discuz_uid=123; auth=abc",
-      FLYERT_CHECKIN_URL: "https://www.flyert.com.cn/plugin.php?id=k_misign:sign"
+      FLYERT_CHECKIN_URL: "https://flyert.com.cn/plugin.php?id=k_misign:sign"
     },
     fetchImpl: async (url) => {
       urls.push(url);
@@ -104,7 +104,7 @@ test("supports a GLaDOS-style configured POST request without notification hooks
   const result = await runFlyertCheckin({
     env: {
       FLYERT_COOKIE: "discuz_uid=123; auth=abc",
-      FLYERT_CHECKIN_URL: "https://www.flyert.com.cn/custom-checkin",
+      FLYERT_CHECKIN_URL: "https://flyert.com.cn/custom-checkin",
       FLYERT_CHECKIN_METHOD: "POST",
       FLYERT_CHECKIN_BODY: "formhash=abc&submit=1",
       FLYERT_SUCCESS_KEYWORDS: "custom ok",
@@ -123,7 +123,7 @@ test("supports a GLaDOS-style configured POST request without notification hooks
 
   assert.equal(result.ok, true);
   assert.equal(result.status, "checked_in");
-  assert.equal(requests[1].url, "https://www.flyert.com.cn/custom-checkin");
+  assert.equal(requests[1].url, "https://flyert.com.cn/custom-checkin");
   assert.equal(requests[1].init.method, "POST");
   assert.equal(requests[1].init.body, "formhash=abc&submit=1");
   assert.equal(requests[1].init.headers["content-type"], "application/x-www-form-urlencoded");

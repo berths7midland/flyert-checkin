@@ -1,4 +1,4 @@
-﻿const DEFAULT_BASE_URL = "https://www.flyert.com.cn";
+const DEFAULT_BASE_URL = "https://flyert.com.cn";
 const DEFAULT_CHECKIN_PATHS = [
   "/plugin.php?id=k_misign:sign",
   "/plugin.php?id=dsu_paulsign:sign",
@@ -271,4 +271,3 @@ function absoluteUrl(value, baseUrl) {
 function truthy(value) {
   return /^(1|true|yes|on)$/i.test(String(value || "").trim());
 }
-
