@@ -84,6 +84,7 @@ Default candidate URLs tried before `FLYERT_CHECKIN_URL` is known:
 
 ```text
 https://www.flyert.com.cn/plugin.php?id=k_misign:sign
+https://www.flyert.com.cn/sign.php?mobile=2
 https://www.flyert.com.cn/plugin.php?id=dsu_paulsign:sign
 https://www.flyert.com.cn/home.php?mod=task
 ```

@@ -73,6 +73,27 @@ test("uses the mobile Flyert forum page for the default login check", async () =
   assert.equal(urls[0], "https://www.flyert.com.cn/forum.php?gid=226&mobile=yes");
 });
 
+test("also runs the mobile sign backup during the default check-in run", async () => {
+  const urls = [];
+
+  const result = await runFlyertCheckin({
+    env: { FLYERT_COOKIE: "discuz_uid=123; auth=abc" },
+    fetchImpl: async (url) => {
+      urls.push(url);
+      if (urls.length === 1) {
+        return response("<html>\u6d88\u606f \u9000\u51fa</html>");
+      }
+      if (url.endsWith("/plugin.php?id=k_misign:sign")) {
+        return response("<html>\u7b7e\u5230\u6210\u529f</html>");
+      }
+      return response("<html>\u4eca\u65e5\u5df2\u7b7e\u5230</html>");
+    }
+  });
+
+  assert.equal(result.ok, true);
+  assert.equal(result.status, "checked_in");
+  assert.ok(urls.includes("https://www.flyert.com.cn/sign.php?mobile=2"));
+});
 test("decodes a GBK Flyert homepage before checking login state", async () => {
   const gbkLoggedIn = Uint8Array.from([0xcf, 0xfb, 0xcf, 0xa2, 0x20, 0xcd, 0xcb, 0xb3, 0xf6]);
   let requestCount = 0;

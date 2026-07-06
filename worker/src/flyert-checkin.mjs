@@ -2,6 +2,7 @@ const DEFAULT_HOME_URL = "https://www.flyert.com.cn/forum.php?gid=226&mobile=yes
 const DEFAULT_BASE_URL = "https://www.flyert.com.cn";
 const DEFAULT_CHECKIN_PATHS = [
   "/plugin.php?id=k_misign:sign",
+  "/sign.php?mobile=2",
   "/plugin.php?id=dsu_paulsign:sign",
   "/home.php?mod=task"
 ];
@@ -56,7 +57,8 @@ export async function runFlyertCheckin(options = {}) {
 
   const checkinUrls = checkinCandidates(env, baseUrl);
   const attempts = [];
-
+  let bestStatus = "unknown";
+  let bestUrl = "";
   for (const url of checkinUrls) {
     const requestInit = buildCheckinRequestInit(env, headers, baseUrl);
     const page = await fetchText(fetchImpl, url, requestInit);
@@ -73,14 +75,22 @@ export async function runFlyertCheckin(options = {}) {
     });
 
     if (status === "checked_in") {
-      logger.log?.(`Flyert check-in succeeded via ${url}`);
-      return result(true, "checked_in", "Flyert check-in succeeded.", { attempts });
+      bestStatus = "checked_in";
+      bestUrl = url;
+    } else if (status === "already_checked" && bestStatus !== "checked_in") {
+      bestStatus = "already_checked";
+      bestUrl = url;
     }
+  }
 
-    if (status === "already_checked") {
-      logger.log?.(`Flyert already checked in via ${url}`);
-      return result(true, "already_checked", "Flyert already checked in today.", { attempts });
-    }
+  if (bestStatus === "checked_in") {
+    logger.log?.(`Flyert check-in succeeded via ${bestUrl}`);
+    return result(true, "checked_in", "Flyert check-in succeeded.", { attempts });
+  }
+
+  if (bestStatus === "already_checked") {
+    logger.log?.(`Flyert already checked in via ${bestUrl}`);
+    return result(true, "already_checked", "Flyert already checked in today.", { attempts });
   }
 
   return result(
